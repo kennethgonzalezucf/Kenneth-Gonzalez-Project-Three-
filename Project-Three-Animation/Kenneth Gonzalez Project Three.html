@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+<head>
+<title>Responsive Interactive Canvas</title>
+<script>
+var canvas;
+var context;
+var circles =[];
+var squares =[];
+var letters =[];
+var letter_counter = 0; //for running through the different letters in the "word" array
+var word = ['H', 'H', 'H', 'H', 'E', 'E', 'E', 'E', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'O', 'O', 'O', 'O'];
+
+function Circle(x,y,color){
+	this.x = x;
+	this.y = y;
+	this.color = color;
+	this.dx = Math.random() * 4 - 2;
+	this.dy = Math.random() * 4 - 2;
+}
+
+function Square(x,y,color){
+	this.x = x;
+	this.y = y;
+	this.color = color;
+	this.dx = Math.random() * 4 - 2;
+	this.dy = Math.random() * 4 - 2;
+}
+
+function Letter(x,y,color){
+	this.x = x;
+	this.y = y;
+	this.color = color;
+	this.dx = Math.random() * 4 - 2;
+	this.dy = Math.random() * 4 - 2;
+}
+
+function init(){
+	canvas = document.getElementById('canvas');
+	context = canvas.getContext('2d');
+	//return setInterval(draw, 30);
+	window.addEventListener('resize', resizeCanvas, false);
+	window.addEventListener('orientationchange', resizeCanvas, false);
+	resizeCanvas();
+	//return setInterval(draw, 30);
+	canvas.onclick = function(event){
+		handleClick(event.clientX, event.clientY);
+	};
+	return setInterval(resizeCanvas, 30);
+}
+function handleClick(x,y){
+	var found = false;
+	if (Math.random() * 10 <= 5){
+	for (var i=0;i<circles.length;i++){
+		d = Math.sqrt((circles[i].x - x)*(circles[i].x - x) + (circles[i].y - y)*(circles[i].y - y));
+		if (d <= 30) {
+			circles.splice(i, 1);
+			found = true;
+		}
+	}
+	}
+	else if (Math.random() * 10 <= 5){
+	for (var i=0;i<squares.length;i++){
+		d = Math.sqrt((squares[i].x - x)*(squares[i].x - x) + (squares[i].y - y)*(squares[i].y - y));
+		if (d <= 30) {
+			squares.splice(i, 1);
+			found = true;
+		}
+	}
+	}
+	else {
+	for (var i=0;i<letters.length;i++){
+		d = Math.sqrt((letters[i].x - x)*(letters[i].x - x) + (letters[i].y - y)*(letters[i].y - y));
+		if (d <= 30) {
+			letters.splice(i, 1);
+			found = true;
+		}
+	}
+	}
+	
+	fillBackgroundColor();
+	if (!found) {
+			var colors = ["red", "green", "blue", "orange", "purple", "yellow"];
+			var color = colors[Math.floor(Math.random()*colors.length)];
+			if (Math.random() * 10 <= 5)
+			circles.push(new Circle(x, y, color));
+			else if (Math.random() * 10 <= 5)
+			squares.push(new Square(x, y, color));
+			else
+			letters.push(new Letter(x, y, color));
+		}
+		if(Math.random() * 10 <= 5){
+		for (var i=0; i<circles.length; i++) {
+			drawCircle(circles[i]);
+		}
+		}
+		else if (Math.random() * 10 <= 5){
+		for (var i=0; i<sqaures.length; i++) {
+			drawSquare(squares[i]);
+		}
+		}
+		else{
+		for (var i=0; i<letters.length; i++) {
+			drawLetter(letters[i]);
+		}
+		}
+}
+function drawCircle(circle) {
+		 context.beginPath();
+		 context.arc(circle.x, circle.y, 30, 0, degreesToRadians(360), true);
+		 context.fillStyle = circle.color;
+		 context.fill();
+		 if (circle.x + circle.dx > canvas.width || circle.x + circle.dx < 0)
+			circle.dx = -circle.dx;
+		if (circle.y + circle.dy > canvas.height || circle.y + circle.dy < 0)
+			circle.dy = -circle.dy;
+		circle.x += circle.dx;
+		circle.y += circle.dy;
+	  }
+function drawSquare(square) {
+		 //context.beginPath();
+		 //context.fillRect(square.x, square.y, square.x + 20, square.y + 20, true);
+		 context.fillStyle = square.color;
+		 //context.fill();
+		 context.fillRect(square.x, square.y, square.x + 20, square.y + 20, true);
+		 if (square.x + square.dx > canvas.width || square.x + square.dx < 0)
+			square.dx = -square.dx;
+		if (square.y + square.dy > canvas.height || square.y + square.dy < 0)
+			square.dy = -square.dy;
+		square.x += square.dx;
+		square.y += square.dy;
+	  }
+
+function drawLetter(letter) {
+		 //context.beginPath();
+		 //context.fillRect(square.x, square.y, square.x + 20, square.y + 20, true);
+		 context.font = "20px Comic Sans MS";
+		 context.fillStyle = letter.color;
+		 //context.fill();
+		 context.fillText(word[letter_counter], letter.x, letter.y);
+		 //letter_counter++;
+		 if (letter.x + letter.dx > canvas.width || letter.x + letter.dx < 0)
+			letter.dx = -letter.dx;
+		if (letter.y + letter.dy > canvas.height || letter.y + letter.dy < 0)
+			letter.dy = -letter.dy;
+		letter.x += letter.dx;
+		letter.y += letter.dy;
+		
+		//if (letter_counter > word.length)
+		//	letter_counter = 0;
+		
+	  }
+	  
+	  
+function fillBackgroundColor (){
+	context.fillStyle = 'white';
+	context.fillRect(0,0,canvas.width,canvas.height);
+}
+function resizeCanvas (){
+	canvas.width = window.innerWidth - 20;
+	canvas.height = window.innerHeight - 20;
+	fillBackgroundColor();
+	for (var i=0;i<circles.length;i++){
+		drawCircle(circles[i]);
+	}
+	for (var i=0;i<squares.length;i++){
+		drawSquare(squares[i]);
+	}
+	for (var i=0;i<letters.length;i++){
+		drawLetter(letters[i]);
+		letter_counter++;
+		if (letter_counter >= word.length)
+			letter_counter = 0;
+	}
+}
+
+
+/*function draw() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  //context.fillStyle = "black";
+  fillBackgroundColor();
+  //drawRect(0,0, canvas.width, canvas.height);
+  //context.fillStyle = "white";
+  context.fillStyle = circle.color;
+  drawCircle(circle.x,circle.y,30);
+  
+}
+*/
+
+function degreesToRadians(degrees) {
+		//converts from degrees to radians and returns
+		return (degrees * Math.PI)/180;
+	}
+	
+window.onload = init;
+</script>
+</head>
+<body>
+<canvas id='canvas' width=500 height=500></canvas>
+</body>
+</html>
